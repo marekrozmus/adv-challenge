@@ -1,5 +1,5 @@
 import React from 'react';
-import Select, { MultiValue } from 'react-select';
+import Select, { SelectInstance, MultiValue } from 'react-select';
 import { BsCircleHalf, BsArrowCounterclockwise } from 'react-icons/bs';
 
 import { ActionButton, Title, TitleWithActions } from './SelectorStyles';
@@ -10,16 +10,20 @@ export type Option = {
 };
 
 interface SelectorProps {
+  placeholder: string;
   options: Array<Option>;
   title: string;
   onChange: (option: Array<string>) => void;
 }
 
-const Selector = ({ options, onChange, title }: SelectorProps) => {
+const Selector = ({ options, placeholder, onChange, title }: SelectorProps) => {
   const [disabled, setDisabled] = React.useState(false);
-
+  const selectRef = React.useRef<SelectInstance<Option, true>>(null);
   const handleToggleSelectorClicked = () => setDisabled(!disabled);
-  const handleResetClicked = () => {};
+  const handleResetClicked = () => {
+    onChange([]);
+    selectRef?.current?.clearValue();
+  };
   const handleSelectionChanged = (selected: MultiValue<Option>) => {
     onChange(selected.map(({ label }) => label));
   };
@@ -36,10 +40,13 @@ const Selector = ({ options, onChange, title }: SelectorProps) => {
         </ActionButton>
       </TitleWithActions>
       <Select
+        ref={selectRef}
         isDisabled={disabled}
-        options={options}
         isMulti
+        options={options}
+        placeholder={placeholder}
         onChange={handleSelectionChanged}
+        isClearable={false}
       />
     </>
   );

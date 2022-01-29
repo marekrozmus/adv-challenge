@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { camelCase } from 'lodash';
 import {
   Actions,
@@ -13,45 +13,50 @@ import Selector, { Option } from 'components/Selector';
 interface ControlPanelProps {
   dataSources: Array<string>;
   campaigns: Array<string>;
+  onCampaignsChanged: (campaigns: Array<string>) => void;
+  onDataSourcesChanged: (dataSources: Array<string>) => void;
 }
 
-const ControlPanel = ({ campaigns, dataSources }: ControlPanelProps) => {
-  const [selectedDatasources, setSelectedDatasources] = React.useState<
-    Array<string>
-  >([]);
-  const [selectedCampaigns, setSelectedCampaigns] = React.useState<
-    Array<string>
-  >([]);
+const prepareSelectData = (source: Array<string>) =>
+  source.map(name => ({
+    label: name,
+    value: camelCase(name),
+  }));
 
-  const [campaignsOptions, setCampaignsOptions] = React.useState<Array<Option>>(
+const ControlPanel = ({
+  campaigns,
+  dataSources,
+  onCampaignsChanged,
+  onDataSourcesChanged,
+}: ControlPanelProps) => {
+  const [campaignsOptions, setCampaignsOptions] = useState<Array<Option>>([]);
+  const [dataSourcesOptions, setDataSourcesOptions] = useState<Array<Option>>(
     []
   );
-  const [dataSourcesOptions, setDataSourcesOptions] = React.useState<
-    Array<Option>
-  >([]);
+  const [selectedCampaigns, setSelectedCampaigns] = useState<Array<string>>([]);
+  const [selectedDataSources, setSelectedDataSources] = useState<Array<string>>(
+    []
+  );
 
   useEffect(() => {
-    const dataSourcesOptions = dataSources.map(name => ({
-      label: name,
-      value: camelCase(name),
-    }));
-    setDataSourcesOptions(dataSourcesOptions);
+    setDataSourcesOptions(prepareSelectData(dataSources));
   }, [dataSources]);
 
   useEffect(() => {
-    const campaignsOptions = campaigns.map(name => ({
-      label: name,
-      value: camelCase(name),
-    }));
-    setCampaignsOptions(campaignsOptions);
-  }, [selectedDatasources, campaigns]);
+    setCampaignsOptions(prepareSelectData(campaigns));
+  }, [campaigns]);
 
   const handleDataSourcesChanged = (selectedDataSources: Array<string>) => {
-    setSelectedDatasources(selectedDataSources);
+    setSelectedDataSources(selectedDataSources);
   };
 
   const handleCampaignsChanged = (selectedCampaigns: Array<string>) => {
     setSelectedCampaigns(selectedCampaigns);
+  };
+
+  const handleApplyClicked = () => {
+    onDataSourcesChanged(selectedDataSources);
+    onCampaignsChanged(selectedCampaigns);
   };
 
   return (
@@ -60,18 +65,20 @@ const ControlPanel = ({ campaigns, dataSources }: ControlPanelProps) => {
       <Content>
         <Filters>
           <Selector
+            placeholder="All data sources"
             title="Datasource"
             options={dataSourcesOptions}
             onChange={handleDataSourcesChanged}
           />
           <Selector
+            placeholder="All campaigns"
             title="Campaign"
             options={campaignsOptions}
             onChange={handleCampaignsChanged}
           />
         </Filters>
         <Actions>
-          <button>Apply</button>
+          <button onClick={handleApplyClicked}>Apply</button>
         </Actions>
       </Content>
     </ControlPanelBox>
