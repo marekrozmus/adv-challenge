@@ -3,19 +3,34 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "https://marekrozmus.github.io/adv-challenge/",
+  "author": {
+    "name": "Marek Rozmus",
+    "url": "https://github.com/marekrozmus/adv-challenge/graphs/contributors"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/marekrozmus/adv-challenge"
+  },
+  "license": "MIT",
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.1",
     "@testing-library/react": "^12.1.2",
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.4.0",
+    "@types/lodash": "^4.14.178",
     "@types/node": "^16.11.21",
     "@types/react": "^17.0.38",
     "@types/react-dom": "^17.0.11",
+    "lodash": "^4.17.21",
+    "papaparse": "^5.3.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
+    "react-icons": "^4.3.1",
+    "react-papaparse": "^4.0.2",
     "react-scripts": "5.0.0",
     "react-select": "^5.2.2",
     "recharts": "^2.1.8",
+    "styled-components": "^5.3.3",
     "typescript": "^4.5.5",
     "web-vitals": "^2.1.4"
   },
@@ -46,6 +61,7 @@
     ]
   },
   "devDependencies": {
+    "@types/styled-components": "^5.1.21",
     "gh-pages": "^3.2.3"
   }
 }
