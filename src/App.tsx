@@ -8,6 +8,10 @@ import Legend from 'components/Legend';
 import Loader from 'components/Loader';
 import { Data } from './utils/common';
 
+const FETCH_SOURCE =
+  'http://adverity-challenge.s3-website-eu-west-1.amazonaws.com/DAMKBAoDBwoDBAkOBAYFCw.csv';
+//process.env.PUBLIC_URL + '/data/data.csv';
+
 function App() {
   const [data, setData] = useState<Array<Data>>([]);
   const [status, setStatus] = useState('');
@@ -22,6 +26,7 @@ function App() {
           header: true,
           complete: onCompleteParsing,
           worker: true,
+          skipEmptyLines: true,
         });
       }
     };
@@ -40,9 +45,7 @@ function App() {
   };
 
   const fetchCsv = async () =>
-    fetch(process.env.PUBLIC_URL + '/data/data.csv').then(response =>
-      response.text()
-    );
+    fetch(FETCH_SOURCE).then(response => response.text());
 
   return (
     <>
