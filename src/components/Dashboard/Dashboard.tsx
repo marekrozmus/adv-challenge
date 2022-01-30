@@ -5,6 +5,7 @@ import { groupBy, mapValues, get } from 'lodash';
 import ControlPanel from 'components/ControlPanel';
 import Chart, { ChartData } from 'components/Chart';
 import { DashboardContent } from './DashboardStyles';
+import { composeCampaignTitlePart, composeDataSourcesTitlePart } from './utils';
 
 type Data = {
   Date: string;
@@ -134,6 +135,11 @@ const Dashboard = () => {
   const handleDataSourcesChanged = (selected: Array<string>) =>
     setSelectedDataSources(selected);
 
+  const composeChartTitle = () =>
+    `${composeDataSourcesTitlePart(
+      selectedDataSources
+    )}; ${composeCampaignTitlePart(selectedCampaigns)}`;
+
   return (
     <DashboardContent>
       <ControlPanel
@@ -142,7 +148,7 @@ const Dashboard = () => {
         onCampaignsChanged={handleCampaignsChanged}
         onDataSourcesChanged={handleDataSourcesChanged}
       />
-      <Chart data={chartData} />
+      <Chart data={chartData} title={composeChartTitle()} />
     </DashboardContent>
   );
 };
