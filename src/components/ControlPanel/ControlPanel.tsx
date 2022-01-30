@@ -29,6 +29,7 @@ const ControlPanel = ({
   onCampaignsChanged,
   onDataSourcesChanged,
 }: ControlPanelProps) => {
+  const [applied, setApplied] = useState(true);
   const [campaignsOptions, setCampaignsOptions] = useState<Array<Option>>([]);
   const [dataSourcesOptions, setDataSourcesOptions] = useState<Array<Option>>(
     []
@@ -48,15 +49,18 @@ const ControlPanel = ({
 
   const handleDataSourcesChanged = (selectedDataSources: Array<string>) => {
     setSelectedDataSources(selectedDataSources);
+    setApplied(false);
   };
 
   const handleCampaignsChanged = (selectedCampaigns: Array<string>) => {
     setSelectedCampaigns(selectedCampaigns);
+    setApplied(false);
   };
 
   const handleApplyClicked = () => {
     onDataSourcesChanged(selectedDataSources);
     onCampaignsChanged(selectedCampaigns);
+    setApplied(true);
   };
 
   return (
@@ -65,12 +69,14 @@ const ControlPanel = ({
       <Content>
         <Filters>
           <Selector
+            id="datasource"
             placeholder="All data sources"
             title="Datasource"
             options={dataSourcesOptions}
             onChange={handleDataSourcesChanged}
           />
           <Selector
+            id="campaign"
             placeholder="All campaigns"
             title="Campaign"
             options={campaignsOptions}
@@ -78,7 +84,9 @@ const ControlPanel = ({
           />
         </Filters>
         <Actions>
-          <button onClick={handleApplyClicked}>Apply</button>
+          <button disabled={applied} onClick={handleApplyClicked}>
+            Apply
+          </button>
         </Actions>
       </Content>
     </ControlPanelBox>

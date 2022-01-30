@@ -10,18 +10,24 @@ export type Option = {
 };
 
 interface SelectorProps {
+  id: string;
   placeholder: string;
   options: Array<Option>;
   title: string;
   onChange: (option: Array<string>) => void;
 }
 
-const Selector = ({ options, placeholder, onChange, title }: SelectorProps) => {
+const Selector = ({
+  options,
+  placeholder,
+  onChange,
+  title,
+  id,
+}: SelectorProps) => {
   const [disabled, setDisabled] = React.useState(false);
   const selectRef = React.useRef<SelectInstance<Option, true>>(null);
   const handleToggleSelectorClicked = () => setDisabled(!disabled);
   const handleResetClicked = () => {
-    onChange([]);
     selectRef?.current?.clearValue();
   };
   const handleSelectionChanged = (selected: MultiValue<Option>) => {
@@ -31,15 +37,16 @@ const Selector = ({ options, placeholder, onChange, title }: SelectorProps) => {
   return (
     <>
       <TitleWithActions>
-        <Title>{title}</Title>
+        <Title htmlFor={id}>{title}</Title>
         <ActionButton onClick={handleToggleSelectorClicked}>
           <BsCircleHalf />
         </ActionButton>
-        <ActionButton onClick={handleResetClicked}>
+        <ActionButton onClick={handleResetClicked} title="clear selection">
           <BsArrowCounterclockwise />
         </ActionButton>
       </TitleWithActions>
       <Select
+        inputId={id}
         ref={selectRef}
         isDisabled={disabled}
         isMulti

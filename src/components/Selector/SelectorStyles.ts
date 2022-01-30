@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-export const Title = styled.div`
+export const Title = styled.label`
   font-weight: 700;
   padding: 0.5rem 0;
 `;
