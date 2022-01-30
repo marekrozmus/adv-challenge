@@ -5,12 +5,15 @@ import './App.css';
 import Dashboard from './components/Dashboard';
 import Header from 'components/Header';
 import Legend from 'components/Legend';
+import Loader from 'components/Loader';
 import { Data } from './utils/common';
 
 function App() {
   const [data, setData] = useState<Array<Data>>([]);
+  const [status, setStatus] = useState('');
 
   useEffect(() => {
+    setStatus('pending');
     const prepareData = async () => {
       const csvData = await fetchCsv();
       if (csvData) {
@@ -33,6 +36,7 @@ function App() {
       console.error('Parsing error', errors);
     }
     setData(data);
+    setStatus('ready');
   };
 
   const fetchCsv = async () =>
@@ -41,11 +45,14 @@ function App() {
     );
 
   return (
-    <div className="App">
-      <Header />
-      <Legend />
-      <Dashboard data={data} />
-    </div>
+    <>
+      <div className="App">
+        <Header />
+        <Legend />
+        <Dashboard data={data} />
+      </div>
+      {status === 'pending' && <Loader />}
+    </>
   );
 }
 
