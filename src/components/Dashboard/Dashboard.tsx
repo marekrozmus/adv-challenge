@@ -1,46 +1,26 @@
 import React, { useEffect, useState } from 'react';
-import Papa from 'papaparse';
-import { groupBy, mapValues, get } from 'lodash';
+import { groupBy, mapValues, get, uniq } from 'lodash';
 
 import ControlPanel from 'components/ControlPanel';
-import Chart, { ChartData } from 'components/Chart';
+import Chart from 'components/Chart';
 import { DashboardContent } from './DashboardStyles';
-import { composeCampaignTitlePart, composeDataSourcesTitlePart } from './utils';
+import {
+  composeCampaignTitlePart,
+  composeDataSourcesTitlePart,
+  prepareChartData,
+} from './utils';
+import { Data } from 'utils/common';
 
-type Data = {
-  Date: string;
-  Datasource: string;
-  Campaign: string;
-  Clicks: number;
-  Impressions: number;
-};
+interface DashboardProps {
+  data: Array<Data>;
+}
 
-const Dashboard = () => {
-  const [data, setData] = useState<Array<Data>>([]);
+const Dashboard = ({ data }: DashboardProps) => {
   const [groupedData, setGroupedData] = useState({});
-  const [dataSources, setDataSources] = useState<Array<string>>([]);
+  const [selectedCampaigns, setSelectedCampaigns] = useState<Array<string>>([]);
   const [selectedDataSources, setSelectedDataSources] = useState<Array<string>>(
     []
   );
-  const [campaigns, setCampaigns] = useState<Array<string>>([]);
-  const [selectedCampaigns, setSelectedCampaigns] = useState<Array<string>>([]);
-  const [chartData, setChartData] = useState<Array<ChartData>>([]);
-
-  useEffect(() => {
-    const prepareData = async () => {
-      const csvData = await fetchCsv();
-      if (csvData) {
-        Papa.parse(csvData, {
-          dynamicTyping: true,
-          header: true,
-          complete: onCompleteParsing,
-          worker: true,
-        });
-      }
-    };
-
-    prepareData();
-  }, []);
 
   useEffect(() => {
     const groupedByDataSource = groupBy(data, 'Datasource');
@@ -50,85 +30,37 @@ const Dashboard = () => {
     setGroupedData(groupedByDataSourceAndCampaign);
   }, [data]);
 
-  useEffect(() => {
-    const dataSources = Object.keys(groupedData);
-    setDataSources(Object.keys(groupedData));
-
-    // should we show only campaigns that are for selected data sources?
-    const campaigns = dataSources.reduce((memo, dataSourceKey) => {
+  const allDataSources = React.useMemo(
+    () => Object.keys(groupedData),
+    [groupedData]
+  );
+  const allCampaigns = React.useMemo(() => {
+    const result = allDataSources.reduce((memo, dataSourceKey) => {
       const dataSourceData = get(groupedData, dataSourceKey);
       return memo.concat(Object.keys(dataSourceData));
     }, [] as Array<string>);
 
-    setCampaigns(campaigns);
-  }, [groupedData]);
+    // some campaign names are duplicated between data sources
+    return uniq(result);
+  }, [groupedData, allDataSources]);
 
-  useEffect(() => {
-    const filteredData = [];
-    const dataSourcesToShow =
-      selectedDataSources.length > 0 ? selectedDataSources : dataSources;
-    const campaignsToShow =
-      selectedCampaigns.length > 0 ? selectedCampaigns : campaigns;
+  const dataSourcesToShow =
+    selectedDataSources.length > 0 ? selectedDataSources : allDataSources;
+  const campaignsToShow =
+    selectedCampaigns.length > 0 ? selectedCampaigns : allCampaigns;
 
-    for (let i = 0; i < dataSourcesToShow.length; i++) {
-      for (let j = 0; j < campaignsToShow.length; j++) {
-        const data = getByDataSourceAndCampaign(
-          groupedData,
-          dataSourcesToShow[i],
-          campaignsToShow[j]
-        );
-        if (data) {
-          filteredData.push(data);
-        }
-      }
+  const chartData = React.useMemo(() => {
+    // start preparing data when all data is ready
+    if (
+      groupedData &&
+      dataSourcesToShow.length > 0 &&
+      campaignsToShow.length > 0
+    ) {
+      return prepareChartData(groupedData, dataSourcesToShow, campaignsToShow);
     }
 
-    const filteredDataFlatten = filteredData.flat();
-    const filteredDataGroupedByDate = groupBy(filteredDataFlatten, 'Date');
-
-    const dataForChart = Object.keys(filteredDataGroupedByDate).reduce(
-      (memo, date) => {
-        memo.push({
-          date,
-          clicks: filteredDataGroupedByDate[date].reduce(
-            (sum, value) => sum + value.Clicks,
-            0
-          ),
-          impressions: filteredDataGroupedByDate[date].reduce(
-            (sum, value) => sum + value.Impressions,
-            0
-          ),
-        });
-
-        return memo;
-      },
-      [] as Array<ChartData>
-    );
-
-    setChartData(dataForChart);
-  }, [selectedDataSources, selectedCampaigns, groupedData]);
-
-  const getByDataSourceAndCampaign = (
-    dataGroupedByDataSourceAndCampaign: object,
-    dataSource: string,
-    campaign: string
-  ): Array<{ Date: string; Clicks: number; Impressions: number }> => {
-    return get(dataGroupedByDataSourceAndCampaign, [dataSource, campaign]);
-  };
-
-  const onCompleteParsing = (results: Papa.ParseResult<Data>) => {
-    const { data, errors } = results;
-    if (errors.length) {
-      // not in scope of this task
-      console.error('Parsing error', errors);
-    }
-    setData(data);
-  };
-
-  const fetchCsv = async () =>
-    fetch(process.env.PUBLIC_URL + '/data/data.csv').then(response =>
-      response.text()
-    );
+    return [];
+  }, [groupedData, dataSourcesToShow, campaignsToShow]);
 
   const handleCampaignsChanged = (selected: Array<string>) =>
     setSelectedCampaigns(selected);
@@ -143,8 +75,8 @@ const Dashboard = () => {
   return (
     <DashboardContent>
       <ControlPanel
-        dataSources={dataSources}
-        campaigns={campaigns}
+        dataSources={allDataSources}
+        campaigns={allCampaigns}
         onCampaignsChanged={handleCampaignsChanged}
         onDataSourcesChanged={handleDataSourcesChanged}
       />
