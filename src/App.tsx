@@ -8,9 +8,9 @@ import Legend from 'components/Legend';
 import Loader from 'components/Loader';
 import { Data } from './utils/common';
 
+// const FETCH_SOURCE = process.env.PUBLIC_URL + '/data/data.csv';
 const FETCH_SOURCE =
   'http://adverity-challenge.s3-website-eu-west-1.amazonaws.com/DAMKBAoDBwoDBAkOBAYFCw.csv';
-//process.env.PUBLIC_URL + '/data/data.csv';
 
 function App() {
   const [data, setData] = useState<Array<Data>>([]);

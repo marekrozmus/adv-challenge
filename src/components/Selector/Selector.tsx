@@ -38,7 +38,10 @@ const Selector = ({
     <>
       <TitleWithActions>
         <Title htmlFor={id}>{title}</Title>
-        <ActionButton onClick={handleToggleSelectorClicked}>
+        <ActionButton
+          onClick={handleToggleSelectorClicked}
+          title="no idea what that button supposed to do"
+        >
           <BsCircleHalf />
         </ActionButton>
         <ActionButton onClick={handleResetClicked} title="clear selection">
