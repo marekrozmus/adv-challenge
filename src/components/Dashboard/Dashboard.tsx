@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { groupBy, mapValues, get, uniq } from 'lodash';
 
 import ControlPanel from 'components/ControlPanel';
@@ -16,18 +16,14 @@ interface DashboardProps {
 }
 
 const Dashboard = ({ data }: DashboardProps) => {
-  const [groupedData, setGroupedData] = useState({});
   const [selectedCampaigns, setSelectedCampaigns] = useState<Array<string>>([]);
   const [selectedDataSources, setSelectedDataSources] = useState<Array<string>>(
     []
   );
 
-  useEffect(() => {
+  const groupedData = React.useMemo(() => {
     const groupedByDataSource = groupBy(data, 'Datasource');
-    const groupedByDataSourceAndCampaign = mapValues(groupedByDataSource, val =>
-      groupBy(val, 'Campaign')
-    );
-    setGroupedData(groupedByDataSourceAndCampaign);
+    return mapValues(groupedByDataSource, val => groupBy(val, 'Campaign'));
   }, [data]);
 
   const allDataSources = React.useMemo(

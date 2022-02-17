@@ -1,4 +1,4 @@
-import { get, groupBy } from 'lodash';
+import { get, groupBy, sumBy } from 'lodash';
 
 import { ChartData } from 'components/Chart';
 
@@ -70,13 +70,10 @@ export const prepareChartData = (
     (memo, date) => {
       memo.push({
         date,
-        clicks: filteredDataGroupedByDate[date].reduce(
-          (sum, value) => sum + value.Clicks,
-          0
-        ),
-        impressions: filteredDataGroupedByDate[date].reduce(
-          (sum, value) => sum + value.Impressions,
-          0
+        clicks: sumBy(filteredDataGroupedByDate[date], item => item.Clicks),
+        impressions: sumBy(
+          filteredDataGroupedByDate[date],
+          item => item.Impressions
         ),
       });
 

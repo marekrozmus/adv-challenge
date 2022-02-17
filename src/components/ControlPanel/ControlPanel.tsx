@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { camelCase } from 'lodash';
 import {
   Actions,
@@ -8,7 +8,7 @@ import {
   Title,
 } from './ControlPanelStyles';
 
-import Selector, { Option } from 'components/Selector';
+import Selector from 'components/Selector';
 
 interface ControlPanelProps {
   dataSources: Array<string>;
@@ -30,22 +30,19 @@ const ControlPanel = ({
   onDataSourcesChanged,
 }: ControlPanelProps) => {
   const [applied, setApplied] = useState(true);
-  const [campaignsOptions, setCampaignsOptions] = useState<Array<Option>>([]);
-  const [dataSourcesOptions, setDataSourcesOptions] = useState<Array<Option>>(
-    []
-  );
   const [selectedCampaigns, setSelectedCampaigns] = useState<Array<string>>([]);
   const [selectedDataSources, setSelectedDataSources] = useState<Array<string>>(
     []
   );
 
-  useEffect(() => {
-    setDataSourcesOptions(prepareSelectData(dataSources));
-  }, [dataSources]);
-
-  useEffect(() => {
-    setCampaignsOptions(prepareSelectData(campaigns));
-  }, [campaigns]);
+  const campaignsOptions = React.useMemo(
+    () => prepareSelectData(campaigns),
+    [campaigns]
+  );
+  const dataSourcesOptions = React.useMemo(
+    () => prepareSelectData(dataSources),
+    [dataSources]
+  );
 
   const handleDataSourcesChanged = (selectedDataSources: Array<string>) => {
     setSelectedDataSources(selectedDataSources);
